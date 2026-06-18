@@ -1,26 +1,50 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types, Document } from 'mongoose';
 
 export type CourseDocument = Course & Document;
 
-@Schema({timestamps: true})
-export class Course {
-    @Prop({required: true, unique: true,ref: 'CourseCategory'})
-    category_id: number;
-    @Prop({required: true, unique: true,ref: 'Teachers'})
-    teacher_id: number;
-    @Prop({required: true})
-    title: string;
-    @Prop({required: true})
-    description: string;
-    @Prop({required: true})
-    price: number;
-    @Prop({required: true})
-    capacity: number;
-    @Prop({required: true})
-    start_date: Date;
-    @Prop({required: true})
-    end_date: Date;
-    @Prop({required: true, enum: ["available", "full", "completed","finished", "cancelled", "upcoming"]})
-    status: string;
+export enum CourseStatus {
+  AVAILABLE = 'available',
+  FULL = 'full',
+  COMPLETED = 'completed',
+  FINISHED = 'finished',
+  CANCELLED = 'cancelled',
+  UPCOMING = 'upcoming',
 }
+
+@Schema({ timestamps: true })
+export class Course {
+  @Prop({ type: Types.ObjectId, ref: 'CourseCategory', required: true })
+  category_id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Teacher', required: true })
+  teacher_id: Types.ObjectId;
+
+  @Prop({ required: true, index: true })
+  title: string;
+
+  @Prop({ required: true, index: true })
+  description: string;
+
+  @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  capacity: number;
+
+  @Prop({ required: true, index: true })
+  start_date: Date;
+
+  @Prop({ required: true, index: true })
+  end_date: Date;
+
+  @Prop({
+    type: String,
+    enum: CourseStatus,
+    default: CourseStatus.AVAILABLE,
+    index: true,
+  })
+  status: CourseStatus;
+}
+
 export const CourseSchema = SchemaFactory.createForClass(Course);
