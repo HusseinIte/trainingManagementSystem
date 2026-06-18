@@ -1,4 +1,4 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 export type CourseDocument = Course & Document;
 
@@ -23,3 +23,4 @@ export class Course {
     @Prop({required: true, enum: ["available", "full", "completed","finished", "cancelled", "upcoming"]})
     status: string;
 }
+export const CourseSchema = SchemaFactory.createForClass(Course);
