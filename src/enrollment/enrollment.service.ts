@@ -4,23 +4,23 @@ import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 
 @Injectable()
 export class EnrollmentService {
-  create(createEnrollmentDto: CreateEnrollmentDto) {
-    return 'This action adds a new enrollment';
+  create(id: any, courseId: string) {
+    throw new Error('Method not implemented.');
   }
-
-  findAll() {
-    return `This action returns all enrollment`;
+  // @Roles('teacher')
+  findByCourseForTeacher(id: any, courseId: string) {
+    throw new Error('Method not implemented.');
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} enrollment`;
+  //@Roles('admin')
+  review(id: string, dto: { status: string; rejection_reason?: string }) {
+    throw new Error('Method not implemented.');
   }
-
-  update(id: number, updateEnrollmentDto: UpdateEnrollmentDto) {
-    return `This action updates a #${id} enrollment`;
+  //@Roles('admin')
+  findByCourse(courseId: string, status: string | undefined) {
+    throw new Error('Method not implemented.');
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} enrollment`;
-  }
+  //@Roles('student')
+  findByStudent(studentId: string, status?: string) {}
 }
+
+

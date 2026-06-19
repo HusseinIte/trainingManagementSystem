@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { GradesModule } from './grades/grades.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { AuthModule } from './auth/auth.module';
+import { StudentsModule } from './students/students.module';
 
 @Module({
   imports: [
@@ -20,7 +21,6 @@ import { AuthModule } from './auth/auth.module';
     CategoriesModule,
     GradesModule,
     EnrollmentModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
