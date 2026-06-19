@@ -8,14 +8,15 @@ import { CoursesModule } from './courses/courses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { GradesModule } from './grades/grades.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
-import { AuthModule } from './auth/auth.module';
-import { StudentsModule } from './students/students.module';
+import { AuthModule } from 'auth/auth.module';
+
 
 @Module({
   imports: [
     MongooseModule.forRoot(
       process.env.MONGODB_URI || 'mongodb://localhost:27017/training_db',
     ),
+    AuthModule,
     UsersModule,
     CoursesModule,
     CategoriesModule,

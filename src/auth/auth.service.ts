@@ -1,7 +1,4 @@
-// auth.service.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -33,7 +30,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-
+    console.log('this is service login');
     const isMatch = await bcrypt.compare(dto.password, user.password);
 
     if (!isMatch) {
@@ -41,13 +38,20 @@ export class AuthService {
     }
 
     const payload = {
-      sub: user._id,
+      sub: user.id,
       email: user.email,
-      role: user.role,
+      full_name: user.full_name,
+      role: user.role, 
     };
-
+    console.log('payload:', payload);
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role.toUpperCase(),
+      },
     };
   }
 }
