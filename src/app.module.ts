@@ -8,13 +8,8 @@ import { CoursesModule } from './courses/courses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { GradesModule } from './grades/grades.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
-<<<<<<< HEAD
 import { AuthModule } from 'auth/auth.module';
 
-=======
-import { AuthModule } from './auth/auth.module';
-// import { StudentsModule } from './students/students.module';
->>>>>>> c85780232d406bd9366b14cb39bea46607498086
 
 @Module({
   imports: [
