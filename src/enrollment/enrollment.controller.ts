@@ -1,34 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { EnrollmentService } from './enrollment.service';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
-import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
+import { EnrollmentService } from "./enrollment.service";
 
-@Controller('enrollment')
-export class EnrollmentController {
-  constructor(private readonly enrollmentService: EnrollmentService) {}
+@Controller()
+export class EnrollmentsController {
+  constructor(private readonly enrollmentsService: EnrollmentService) {}
 
-  @Post()
-  create(@Body() createEnrollmentDto: CreateEnrollmentDto) {
-    return this.enrollmentService.create(createEnrollmentDto);
+  @Post('courses/:courseId/enrollments')
+  request(@Req() req, @Param('courseId') courseId: string) {
+    return this.enrollmentsService.create(req.user.id, courseId);
   }
 
-  @Get()
-  findAll() {
-    return this.enrollmentService.findAll();
+  @Get('admin/courses/:courseId/enrollments')
+  listForCourse(@Param('courseId') courseId: string, @Query('status') status?: string) {
+    return this.enrollmentsService.findByCourse(courseId, status);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.enrollmentService.findOne(+id);
+  @Post('admin/enrollments/:id')
+  review(@Param('id') id: string, @Body() dto: { status: string; rejection_reason?: string }) {
+    return this.enrollmentsService.review(id, dto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEnrollmentDto: UpdateEnrollmentDto) {
-    return this.enrollmentService.update(+id, updateEnrollmentDto);
+  @Get('students/me/courses')
+  myCourses(@Req() req, @Query('status') status?: string) {
+    return this.enrollmentsService.findByStudent(req.user.id, status);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.enrollmentService.remove(+id);
+  @Get('teachers/me/courses/:courseId/students')
+  studentsInCourse(@Req() req, @Param('courseId') courseId: string) {
+    return this.enrollmentsService.findByCourseForTeacher(req.user.id, courseId);
   }
 }
