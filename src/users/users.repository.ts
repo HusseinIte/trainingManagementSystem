@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './users.schema';
+import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -13,7 +13,31 @@ export class UsersRepository {
   ) {}
 
   create(data: Partial<User>) {
-    return this.userModel.create(data);
+    try {
+      return this.userModel.create(data);
+    } catch (error) {
+      throw new Error(`error happen in: ${error}`);
+    }
+  }
+
+  update(id, data: Partial<User>) {
+    try {
+      return this.userModel.findByIdAndUpdate(
+        id,
+        { $set: data },
+        {
+          new: true, // Return updated document
+        },
+      );
+    } catch (error) {
+      throw new Error(`error happen in: ${error}`);
+    }
+  }
+
+  delete(id: string) {
+    // Validate ObjectId
+    const result = await this.userModel.findByIdAndDelete(id);
+    return result;
   }
 
   findByEmail(email: string) {
@@ -26,6 +50,10 @@ export class UsersRepository {
 
   findById(id: string) {
     return this.userModel.findById(id);
+  }
+
+  findByStatus(status: string) {
+    return this.userModel.find({ status });
   }
 
   findAll() {
