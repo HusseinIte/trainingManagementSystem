@@ -36,7 +36,7 @@ export class UsersRepository {
 
   delete(id: string) {
     // Validate ObjectId
-    const result = await this.userModel.findByIdAndDelete(id);
+    const result = this.userModel.findByIdAndDelete(id);
     return result;
   }
 

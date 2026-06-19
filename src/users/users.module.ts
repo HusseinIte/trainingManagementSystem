@@ -17,8 +17,8 @@ import { TeacherAdminService } from './admin/teacher/teacher-admin.service';
       },
     ]),
   ],
-  controllers: [UsersController],
-  providers: [UsersService, UsersRepository],
+  controllers: [UsersController, TeacherAdminController],
+  providers: [UsersService, UsersRepository, TeacherAdminService],
   exports: [UsersService],
 })
 export class UsersModule {}
