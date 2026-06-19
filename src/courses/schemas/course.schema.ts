@@ -17,7 +17,7 @@ export class Course {
   @Prop({ type: Types.ObjectId, ref: 'CourseCategory', required: true })
   category_id: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Teacher', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   teacher_id: Types.ObjectId;
 
   @Prop({ required: true, index: true })
