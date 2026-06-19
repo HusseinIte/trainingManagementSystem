@@ -24,4 +24,7 @@ export class CreateUserDto {
 
   @IsEnum(['ACTIVE', 'INACTIVE'])
   status: string;
+
+  @IsEnum(['student', 'teacher', 'admin'])
+  role: string;
 }

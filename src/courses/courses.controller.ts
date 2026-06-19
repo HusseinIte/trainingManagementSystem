@@ -7,17 +7,23 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { QueryCourseDto } from './dto/query-course.dto';
+import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
+import { RolesGuard } from 'auth/authorization/roles.guard';
+import { Roles } from 'auth/authorization/roles.decorator';
 
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'student')
   getAllCourses() {
     return this.coursesService.getAllCourses();
   }
