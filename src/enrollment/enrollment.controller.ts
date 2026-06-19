@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
-import { EnrollmentService } from "./enrollment.service";
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { EnrollmentService } from './enrollment.service';
 
 @Controller()
 export class EnrollmentsController {
@@ -11,12 +11,18 @@ export class EnrollmentsController {
   }
 
   @Get('admin/courses/:courseId/enrollments')
-  listForCourse(@Param('courseId') courseId: string, @Query('status') status?: string) {
+  listForCourse(
+    @Param('courseId') courseId: string,
+    @Query('status') status?: string,
+  ) {
     return this.enrollmentsService.findByCourse(courseId, status);
   }
 
   @Post('admin/enrollments/:id')
-  review(@Param('id') id: string, @Body() dto: { status: string; rejection_reason?: string }) {
+  review(
+    @Param('id') id: string,
+    @Body() dto: { status: string; rejection_reason?: string },
+  ) {
     return this.enrollmentsService.review(id, dto);
   }
 
@@ -27,6 +33,9 @@ export class EnrollmentsController {
 
   @Get('teachers/me/courses/:courseId/students')
   studentsInCourse(@Req() req, @Param('courseId') courseId: string) {
-    return this.enrollmentsService.findByCourseForTeacher(req.user.id, courseId);
+    return this.enrollmentsService.findByCourseForTeacher(
+      req.user.id,
+      courseId,
+    );
   }
 }
