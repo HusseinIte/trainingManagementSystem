@@ -6,9 +6,10 @@ import { CourseSchema } from './schemas/course.schema';
 import { CoursesRepository } from './repositories/course.repository';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'Course', schema: CourseSchema }]) ],
+  imports: [
+    MongooseModule.forFeature([{ name: 'Course', schema: CourseSchema }]),
+  ],
   controllers: [CoursesController],
   providers: [CoursesService, CoursesRepository],
-
 })
 export class CoursesModule {}

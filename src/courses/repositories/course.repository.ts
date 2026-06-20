@@ -32,9 +32,9 @@ export class CoursesRepository {
   }
 
   async findAvailableCourses(query: QueryCourseDto) {
-    const filter: any = {
-      status: 'available',
-    };
+    const filter: any = {};
+
+    filter.status = query.status ? query.status : 'available';
 
     if (query.categoryId) {
       filter.category_id = query.categoryId;
@@ -69,6 +69,17 @@ export class CoursesRepository {
   async deleteCourse(id: string) {
     try {
       return await this.courseModel.findByIdAndDelete(id);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async updateCourseStatus(id: string, status: string) {
+    try {
+      return await this.courseModel.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true },
+      );
     } catch (error) {
       this.handleError(error);
     }

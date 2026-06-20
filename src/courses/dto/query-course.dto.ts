@@ -8,4 +8,8 @@ export class QueryCourseDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
