@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
 import { RolesGuard } from 'auth/authorization/roles.guard';
 import { Roles } from 'auth/authorization/roles.decorator';
 import { CurrentUser } from 'auth/common/decorators/current-user.decorator';
+import { CourseStatus } from './schemas/course.schema';
 
 @Controller('courses')
 export class CoursesController {
@@ -25,8 +26,12 @@ export class CoursesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+
   getCourses(@CurrentUser() user: any, @Query() query: QueryCourseDto) {
+    if (user?.role === 'admin') {
     return this.coursesService.getAllCourses(user, query);
+  }
+  return this.coursesService.getAvailableCourses(query);
   }
 
   @Get(':id')
@@ -61,7 +66,10 @@ export class CoursesController {
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  updateCourseStatus(@Param('id') id: string, @Body('status') status: string) {
+  updateCourseStatus(
+    @Param('id') id: string,
+    @Body('status') status: CourseStatus,
+  ) {
     return this.coursesService.updateCourseStatus(id, status);
   }
 }

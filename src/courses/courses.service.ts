@@ -1,14 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CoursesRepository } from './repositories/course.repository';
 import { QueryCourseDto } from './dto/query-course.dto';
+import { CourseStatus } from './schemas/course.schema';
 
 @Injectable()
 export class CoursesService {
-  updateStatus(arg0: any, arg1: string) {
-    throw new Error('Method not implemented.');
-  }
   constructor(private readonly coursesRepository: CoursesRepository) {}
 
   getAllCourses(user: any, query: QueryCourseDto) {
@@ -39,7 +37,15 @@ export class CoursesService {
   deleteCourse(id: string) {
     return this.coursesRepository.deleteCourse(id);
   }
-  updateCourseStatus(id: string, status: string) {
-    return this.coursesRepository.updateCourseStatus(id, status);
+  async updateCourseStatus(id: string, status: CourseStatus) {
+    const updated = await this.coursesRepository.updateCourseStatus(id, status);
+    if (!updated) {
+      throw new NotFoundException('Course not found');
+    }
+    return updated;
+  }
+
+  async getCoursesForTeacher(teacherId: string, status?: string) {
+    return this.coursesRepository.findCoursesByTeacher(teacherId, status);
   }
 }

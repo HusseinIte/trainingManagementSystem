@@ -39,6 +39,7 @@ export class EnrollmentService {
       course_id: courseId,
       status: { $in: ['PENDING_PAYMENT', 'ACCEPTED'] },
     });
+    
     if (existing) {
       throw new ConflictException(
         'You already have an active enrollment for this course',
@@ -87,9 +88,8 @@ export class EnrollmentService {
 
       enrollment.status = 'ACCEPTED';
       enrollment.accepted_date = new Date();
-
       if (acceptedCount + 1 >= course!.capacity) {
-        this.coursesService.updateStatus(
+        await this.coursesService.updateCourseStatus(
           course!._id.toString(),
           CourseStatus.FULL,
         );

@@ -5,9 +5,9 @@ export type EnrollmentDocument = Enrollment & Document;
 
 @Schema({ timestamps: true })
 export class Enrollment {
-  @Prop({ type: Types.ObjectId, required: true, ref: 'Users' })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   student_id: Types.ObjectId;
-  @Prop({ type: Types.ObjectId, required: true, ref: 'Courses' })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Course' })
   course_id: Types.ObjectId;
   @Prop({ required: true, enum: ['PENDING_PAYMENT', 'ACCEPTED', 'REJECTED'] })
   status: string;
