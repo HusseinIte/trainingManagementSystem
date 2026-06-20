@@ -39,7 +39,7 @@ export class EnrollmentService {
       course_id: courseId,
       status: { $in: ['PENDING_PAYMENT', 'ACCEPTED'] },
     });
-    
+
     if (existing) {
       throw new ConflictException(
         'You already have an active enrollment for this course',
