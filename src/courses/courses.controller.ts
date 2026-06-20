@@ -26,12 +26,11 @@ export class CoursesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-
   getCourses(@CurrentUser() user: any, @Query() query: QueryCourseDto) {
     if (user?.role === 'admin') {
-    return this.coursesService.getAllCourses(user, query);
-  }
-  return this.coursesService.getAvailableCourses(query);
+      return this.coursesService.getAllCourses(user, query);
+    }
+    return this.coursesService.getAvailableCourses(query);
   }
 
   @Get(':id')
