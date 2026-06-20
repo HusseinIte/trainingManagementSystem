@@ -30,7 +30,6 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    console.log('this is service login');
     const isMatch = await bcrypt.compare(dto.password, user.password);
 
     if (!isMatch) {

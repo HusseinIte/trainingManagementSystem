@@ -108,13 +108,16 @@ export class EnrollmentService {
   }
   /** Student: their own enrollments, optionally filtered by status, with course populated */
   async findByStudent(studentId: string, status?: string) {
-    const filter: Record<string, any> = { student_id: studentId };
-    if (status && status !== 'all') filter.status = status;
-    return this.enrollmentModel
-      .find(filter)
-      .populate('course_id')
-      .sort({ requested_at: -1 });
-  }
+  const filter: Record<string, any> = { student_id: studentId };
+  if (status && status !== 'all') filter.status = status;
+  return this.enrollmentModel
+    .find(filter)
+    .populate({
+      path: 'course_id',
+      populate: { path: 'category_id' },
+    })
+    .sort({ requested_at: -1 });
+}
 
   /** Teacher: roster of accepted students in one of their own courses */
   async findByCourseForTeacher(teacherId: string, courseId: string) {
