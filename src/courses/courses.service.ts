@@ -11,7 +11,12 @@ export class CoursesService {
   }
   constructor(private readonly coursesRepository: CoursesRepository) {}
 
-  getAllCourses() {
+  getAllCourses(user: any, query: QueryCourseDto) {
+    if (user.role === 'student') {
+      query.status = 'available';
+      return this.coursesRepository.findAvailableCourses(query);
+    }
+
     return this.coursesRepository.getAllCourses();
   }
 
@@ -33,5 +38,8 @@ export class CoursesService {
 
   deleteCourse(id: string) {
     return this.coursesRepository.deleteCourse(id);
+  }
+  updateCourseStatus(id: string, status: string) {
+    return this.coursesRepository.updateCourseStatus(id, status);
   }
 }

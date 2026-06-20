@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -16,34 +17,34 @@ import { QueryCourseDto } from './dto/query-course.dto';
 import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
 import { RolesGuard } from 'auth/authorization/roles.guard';
 import { Roles } from 'auth/authorization/roles.decorator';
+import { CurrentUser } from 'auth/common/decorators/current-user.decorator';
 
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'student')
-  getAllCourses() {
-    return this.coursesService.getAllCourses();
+  @UseGuards(JwtAuthGuard)
+  getCourses(@CurrentUser() user: any, @Query() query: QueryCourseDto) {
+    return this.coursesService.getAllCourses(user, query);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findCourseById(@Param('id') id: string) {
     return this.coursesService.findCourseById(id);
   }
 
-  @Get()
-  getAvailableCourses(@Query() query: QueryCourseDto) {
-    return this.coursesService.getAvailableCourses(query);
-  }
-
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   addCourse(@Body() createCourseDto: CreateCourseDto) {
     return this.coursesService.addCourse(createCourseDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   updateCourse(
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,
@@ -52,7 +53,15 @@ export class CoursesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   deleteCourse(@Param('id') id: string) {
     return this.coursesService.deleteCourse(id);
+  }
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateCourseStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.coursesService.updateCourseStatus(id, status);
   }
 }

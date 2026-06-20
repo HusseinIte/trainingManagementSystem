@@ -2,7 +2,7 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from 'users/users.repository';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class TeacherAdminService {
   constructor(private readonly userRepository: UsersRepository) {}
@@ -25,7 +25,14 @@ export class TeacherAdminService {
 
     // Create teacher as a user.
     try {
-      return this.userRepository.create(createTeacherDto);
+      const hashPassword = await bcrypt.hash(createTeacherDto.password, 10);
+      const result = await this.userRepository.create({
+        ...createTeacherDto,
+        password: hashPassword,
+      });
+
+      const { password: _, ...teacher } = result.toObject();
+      return teacher;
     } catch (error) {
       throw new Error(`error happened in service teacher: ${error}`);
     }
