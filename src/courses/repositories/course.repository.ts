@@ -26,16 +26,16 @@ export class CoursesRepository {
   ) {}
 
   async getAllCourses() {
-    try {
-      return await this.courseModel.find();
-    } catch (error) {
-      this.handleError(error);
-    }
+  try {
+    return await this.courseModel.find().populate('category_id').populate('teacher_id', 'full_name email');
+  } catch (error) {
+    this.handleError(error);
   }
+}
 
   async findCourseById(id: string) {
     try {
-      return await this.courseModel.findById(id);
+      return await this.courseModel.findById(id).populate('category_id').populate('teacher_id', 'full_name email');
     } catch (error) {
       this.handleError(error);
     }
@@ -53,7 +53,7 @@ export class CoursesRepository {
       filter.title = { $regex: query.search, $options: 'i' };
     }
 
-    const courses = await this.courseModel.find(filter);
+    const courses = await this.courseModel.find(filter).populate('category_id').populate('teacher_id', 'full_name email');
     if (courses.length === 0) return courses;
 
     const courseIds = courses.map((c) => c._id);

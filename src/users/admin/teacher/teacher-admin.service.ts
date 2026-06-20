@@ -7,12 +7,8 @@ import * as bcrypt from 'bcrypt';
 export class TeacherAdminService {
   constructor(private readonly userRepository: UsersRepository) {}
 
-  findByStatus(status: string) {
-    return this.userRepository.findByStatus(status);
-  }
-
-  findAll() {
-    return this.userRepository.findAll();
+  findAll(status?: string) {
+    return this.userRepository.findByRole('teacher', status);
   }
 
   findById(id: string) {

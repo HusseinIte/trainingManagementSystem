@@ -39,10 +39,7 @@ export class TeacherAdminController {
       status: string;
     }>
   > {
-    const users = status
-      ? await this.teacherAdminService.findByStatus(status)
-      : await this.teacherAdminService.findAll();
-
+    const users = await this.teacherAdminService.findAll(status);
     return users.map((user: any) => this.toResponse(user));
   }
 
@@ -192,7 +189,7 @@ export class TeacherAdminController {
           deleted: true,
         },
       };
-    } catch (error:any) {
+    } catch (error: any) {
       // If it's already a NestJS HTTP exception, rethrow it
       if (error.getStatus && typeof error.getStatus === 'function') {
         throw error;

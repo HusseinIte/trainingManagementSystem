@@ -44,6 +44,12 @@ export class UsersRepository {
     return this.userModel.findOne({ email });
   }
 
+  async findByRole(role: string, status?: string) {
+    const filter: any = { role };
+    if (status) filter.status = status.toUpperCase();
+    return this.userModel.find(filter);
+  }
+
   findByEmailWithPassword(email: string) {
     return this.userModel.findOne({ email }).select('+password');
   }
