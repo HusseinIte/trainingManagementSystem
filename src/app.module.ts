@@ -9,6 +9,9 @@ import { CategoriesModule } from './categories/categories.module';
 import { GradesModule } from './grades/grades.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { AuthModule } from './auth/auth.module';
+import { AuthController } from 'auth/auth.controller';
+import { AuthService } from 'auth/auth.service';
+import { CategoriesController } from 'categories/categories.controller';
 // import { StudentsModule } from './students/students.module';
 
 @Module({
@@ -21,8 +24,9 @@ import { AuthModule } from './auth/auth.module';
     CategoriesModule,
     GradesModule,
     EnrollmentModule,
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AuthController],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}

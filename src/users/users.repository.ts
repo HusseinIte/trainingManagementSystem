@@ -56,7 +56,15 @@ export class UsersRepository {
     return this.userModel.find({ status });
   }
 
+  findByStatusRole(status: string, role: string) {
+    return this.userModel.find({ status, role });
+  }
+
   findAll() {
     return this.userModel.find();
+  }
+
+  findByRole(role: string) {
+    return this.userModel.find({ role });
   }
 }
