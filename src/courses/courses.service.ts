@@ -6,6 +6,9 @@ import { QueryCourseDto } from './dto/query-course.dto';
 
 @Injectable()
 export class CoursesService {
+  updateStatus(arg0: any, arg1: string) {
+    throw new Error('Method not implemented.');
+  }
   constructor(private readonly coursesRepository: CoursesRepository) {}
 
   getAllCourses() {

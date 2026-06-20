@@ -178,7 +178,7 @@ export class TeacherAdminController {
           deleted: true,
         },
       };
-    } catch (error) {
+    } catch (error:any) {
       // If it's already a NestJS HTTP exception, rethrow it
       if (error.getStatus && typeof error.getStatus === 'function') {
         throw error;

@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { CreateCourseDto } from 'courses/dto/create-course.dto';
 import { QueryCourseDto } from 'courses/dto/query-course.dto';
-import { Course } from 'courses/entities/course.entity';
-import { CourseDocument } from 'courses/schemas/course.schema';
+import { Course, CourseDocument } from 'courses/schemas/course.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class CoursesRepository {
     return this.courseModel.find(filter);
   }
 
-  async addCourse(course: Course) {
+  async addCourse(course: CreateCourseDto) {
     try {
       const newCourse = new this.courseModel(course);
       return await newCourse.save();
@@ -56,7 +56,7 @@ export class CoursesRepository {
     }
   }
 
-  async updateCourse(id: string, course: Partial<Course>) {
+  async updateCourse(id: string, course: Partial<CreateCourseDto>) {
     try {
       return await this.courseModel.findByIdAndUpdate(id, course, {
         new: true,
