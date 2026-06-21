@@ -32,10 +32,10 @@ export class Course {
   @Prop({ required: true })
   capacity: number;
 
-  @Prop({ required: true, index: true })
+  @Prop({ index: true })
   start_date: Date;
 
-  @Prop({ required: true, index: true })
+  @Prop({ index: true })
   end_date: Date;
 
   @Prop({

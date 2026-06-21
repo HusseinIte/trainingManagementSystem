@@ -194,16 +194,12 @@ export class StatisticsService {
 
     const byCategory = await this.courseModel.aggregate([
       { $match: filter },
-      {
-        $group: {
-          _id: '$category_id',
-          count: { $sum: 1 },
-        },
-      },
+      { $group: { _id: '$category_id', count: { $sum: 1 } } },
+      { $addFields: { categoryObjectId: { $toObjectId: '$_id' } } },
       {
         $lookup: {
           from: 'categories',
-          localField: '_id',
+          localField: 'categoryObjectId',
           foreignField: '_id',
           as: 'category',
         },
@@ -217,7 +213,6 @@ export class StatisticsService {
         },
       },
     ]);
-
     const total = await this.courseModel.countDocuments(filter);
 
     return {
@@ -300,5 +295,61 @@ export class StatisticsService {
     }
 
     return filter;
+  }
+
+  async getCoursePerformanceStatistics() {
+    return this.courseModel.aggregate([
+      {
+        $lookup: {
+          from: 'enrollments',
+          localField: '_id',
+          foreignField: 'course_id',
+          as: 'enrollments',
+        },
+      },
+      {
+        $lookup: {
+          from: 'grades',
+          let: { enrollmentIds: '$enrollments._id' },
+          pipeline: [
+            {
+              $match: { $expr: { $in: ['$enrollment_id', '$$enrollmentIds'] } },
+            },
+          ],
+          as: 'grades',
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          total: { $size: '$enrollments' },
+          accepted: {
+            $size: {
+              $filter: {
+                input: '$enrollments',
+                cond: { $eq: ['$$this.status', 'ACCEPTED'] },
+              },
+            },
+          },
+          graded: { $size: '$grades' },
+          passed: {
+            $size: {
+              $filter: {
+                input: '$grades',
+                cond: { $eq: ['$$this.result', 'PASSED'] },
+              },
+            },
+          },
+          failed: {
+            $size: {
+              $filter: {
+                input: '$grades',
+                cond: { $eq: ['$$this.result', 'FAILED'] },
+              },
+            },
+          },
+        },
+      },
+    ]);
   }
 }
