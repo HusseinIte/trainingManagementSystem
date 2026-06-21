@@ -11,6 +11,10 @@ import { EnrollmentModule } from './enrollment/enrollment.module';
 import { AuthModule } from 'auth/auth.module';
 import { StatisticsModule } from 'statistics/statistics.module';
 
+import { AuthController } from 'auth/auth.controller';
+import { AuthService } from 'auth/auth.service';
+import { CategoriesController } from 'categories/categories.controller';
+// import { StudentsModule } from './students/students.module';
 
 @Module({
   imports: [
@@ -24,8 +28,9 @@ import { StatisticsModule } from 'statistics/statistics.module';
     GradesModule,
     EnrollmentModule,
     StatisticsModule,
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AuthController],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}

@@ -39,8 +39,6 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,

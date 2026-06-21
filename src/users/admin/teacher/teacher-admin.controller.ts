@@ -39,7 +39,10 @@ export class TeacherAdminController {
       status: string;
     }>
   > {
-    const users = await this.teacherAdminService.findAll(status);
+    const users = status
+      ? await this.teacherAdminService.findByStatusRole(status)
+      : await this.teacherAdminService.findAll();
+
     return users.map((user: any) => this.toResponse(user));
   }
 
