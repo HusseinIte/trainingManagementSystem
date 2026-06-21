@@ -34,6 +34,14 @@ export class TeacherGradeService {
     if (!dto?.status) {
       throw new BadRequestException('status is required');
     }
+
+    // Added validation: ensure grade_value is present if accepted
+    if (dto.status === 'accepted' && !dto.grade_value) {
+      throw new BadRequestException(
+        'grade_value is required when status=accepted',
+      );
+    }
+
     if (dto.status === 'rejected' && !dto.rejected_reason) {
       throw new BadRequestException(
         'rejected_reason is required when status=rejected',
@@ -58,28 +66,24 @@ export class TeacherGradeService {
 
     const existing = await this.gradeModel.findOne({
       student_id: enrollment.student_id,
-      course_id: Number(courseId),
-    });
+      course_id: courseId,
+    } as any);
 
     if (existing) {
       return existing;
     }
 
     const now = new Date();
-    const gradePayload: Pick<
-      Grades,
-      | 'student_id'
-      | 'course_id'
-      | 'status'
-      | 'requested_date'
-      | 'accepted_date'
-      | 'rejected_reason'
-    > = {
+
+    // FIX 1: Removed the restrictive `Pick<>` type.
+    // FIX 2: Added fallback to 'N/A' for grade_value to satisfy the `required: true` schema rule if rejected.
+    const gradePayload = {
       student_id: enrollment.student_id,
-      course_id: Number(courseId),
+      course_id: courseId,
       status: dto.status,
       requested_date: now,
       accepted_date: now,
+      grade_value: dto.grade_value || 'N/A',
       rejected_reason:
         dto.status === 'rejected' ? (dto.rejected_reason ?? 'N/A') : 'N/A',
     };
@@ -96,7 +100,7 @@ export class TeacherGradeService {
       throw new BadRequestException('You are not the owner of this course');
     }
 
-    const grades = await this.gradeModel.find({ course_id: Number(courseId) });
+    const grades = await this.gradeModel.find({ course_id: courseId });
     return grades;
   }
 
@@ -108,6 +112,13 @@ export class TeacherGradeService {
     if (!dto?.status) {
       throw new BadRequestException('status is required');
     }
+
+    if (dto.status === 'accepted' && !dto.grade_value) {
+      throw new BadRequestException(
+        'grade_value is required when status=accepted',
+      );
+    }
+
     if (dto.status === 'rejected' && !dto.rejected_reason) {
       throw new BadRequestException(
         'rejected_reason is required when status=rejected',
@@ -125,6 +136,14 @@ export class TeacherGradeService {
     }
 
     grade.status = dto.status;
+
+    // FIX 3: Actually apply the grade_value update from the DTO
+    if (dto.grade_value) {
+      grade.grade_value = dto.grade_value;
+    } else if (dto.status === 'rejected') {
+      grade.grade_value = 'N/A'; // Clear out grade if rejected
+    }
+
     grade.rejected_reason =
       dto.status === 'rejected' ? (dto.rejected_reason ?? 'N/A') : 'N/A';
     grade.accepted_date = new Date();

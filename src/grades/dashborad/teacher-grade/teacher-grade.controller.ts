@@ -1,4 +1,13 @@
-import { Body, Controller, Param, Post, Req, UseGuards, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
 import { Roles } from 'auth/authorization/roles.decorator';
 import { RolesGuard } from 'auth/authorization/roles.guard';
@@ -14,38 +23,47 @@ export class TeacherGradeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('teacher')
   createGrade(
-    @Req() req: any,
+    @Req() req: { user?: { id?: string } },
     @Param('courseId') courseId: string,
     @Param('enrollmentId') enrollmentId: string,
     @Body() dto: TeacherAddGradeDto,
   ) {
+    const teacherId = req.user?.id;
     return this.teacherGradeService.addGrade(
-      req.user?.id,
+      teacherId as string,
       courseId,
       enrollmentId,
       dto,
     );
   }
 
-  @Post('grades/:gradeId')
+  @Put('grades/:gradeId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('teacher')
   updateGrade(
-    @Req() req: any,
+    @Req() req: { user?: { id?: string } },
     @Param('gradeId') gradeId: string,
     @Body() dto: TeacherUpdateGradeDto,
   ) {
-    return this.teacherGradeService.updateGrade(req.user?.id, gradeId, dto);
+    const teacherId = req.user?.id;
+    return this.teacherGradeService.updateGrade(
+      teacherId as string,
+      gradeId,
+      dto,
+    );
   }
 
   @Get('courses/:courseId/grades')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('teacher')
   getGradesForCourse(
-    @Req() req: any,
+    @Req() req: { user?: { id?: string } },
     @Param('courseId') courseId: string,
   ) {
-    return this.teacherGradeService.getGradesForCourse(req.user.id, courseId);
+    const teacherId = req.user?.id;
+    return this.teacherGradeService.getGradesForCourse(
+      teacherId as string,
+      courseId,
+    );
   }
 }
-
