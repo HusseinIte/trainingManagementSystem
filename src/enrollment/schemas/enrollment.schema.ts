@@ -1,22 +1,22 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 export type EnrollmentDocument = Enrollment & Document;
 
-@Schema({timestamps: true})
+@Schema({ timestamps: true })
 export class Enrollment {
-    @Prop({required: true,ref: 'Users'})
-    student_id: number;
-    @Prop({required: true,ref: 'Courses'})
-    course_id: number;
-    @Prop({required: true, enum: ["pending", "accepted", "rejected"]})
-    status: string;
-    @Prop({required: true})
-    requested_date: Date;
-    @Prop({required: true})
-    accepted_date: Date;
-    @Prop({required: true})
-    rejected_reason: string;
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
+  student_id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Course' })
+  course_id: Types.ObjectId;
+  @Prop({ required: true, enum: ['PENDING_PAYMENT', 'ACCEPTED', 'REJECTED'] })
+  status: string;
+  @Prop()
+  requested_date: Date;
+  @Prop()
+  accepted_date: Date;
+  @Prop()
+  rejected_reason: string;
 }
 
 export const EnrollmentSchema = SchemaFactory.createForClass(Enrollment);

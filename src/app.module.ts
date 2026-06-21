@@ -8,7 +8,9 @@ import { CoursesModule } from './courses/courses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { GradesModule } from './grades/grades.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from 'auth/auth.module';
+import { StatisticsModule } from 'statistics/statistics.module';
+
 import { AuthController } from 'auth/auth.controller';
 import { AuthService } from 'auth/auth.service';
 import { CategoriesController } from 'categories/categories.controller';
@@ -19,11 +21,13 @@ import { CategoriesController } from 'categories/categories.controller';
     MongooseModule.forRoot(
       process.env.MONGODB_URI || 'mongodb://localhost:27017/training_db',
     ),
+    AuthModule,
     UsersModule,
     CoursesModule,
     CategoriesModule,
     GradesModule,
     EnrollmentModule,
+    StatisticsModule,
     AuthModule,
   ],
   controllers: [AppController, AuthController],

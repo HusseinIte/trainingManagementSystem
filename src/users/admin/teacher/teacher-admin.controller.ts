@@ -11,6 +11,7 @@ import {
   Body,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { isValidObjectId } from 'mongoose';
 
@@ -18,12 +19,17 @@ import { TeacherAdminService } from './teacher-admin.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { UserDocument } from '../../schemas/user.schema';
+import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
+import { RolesGuard } from 'auth/authorization/roles.guard';
+import { Roles } from 'auth/authorization/roles.decorator';
 
 @Controller('admin/teachers')
 export class TeacherAdminController {
   constructor(private readonly teacherAdminService: TeacherAdminService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async findAll(@Query('status') status?: string): Promise<
     Array<{
       id: string;
@@ -34,13 +40,15 @@ export class TeacherAdminController {
     }>
   > {
     const users = status
-      ? await this.teacherAdminService.findByStatusRole(status)
+      ? await this.teacherAdminService.findByStatus(status)
       : await this.teacherAdminService.findAll();
 
     return users.map((user: any) => this.toResponse(user));
   }
 
   @Get(':teacherId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async findOne(@Param('teacherId') teacherId: string): Promise<{
     id: string;
     full_name: string;
@@ -62,6 +70,8 @@ export class TeacherAdminController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async createTeacher(@Body() createTeacherDto: CreateTeacherDto) {
     const dto = {
       ...createTeacherDto,
@@ -104,6 +114,8 @@ export class TeacherAdminController {
   }
 
   @Put(':teacherId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async updateTeacher(
     @Param('teacherId') teacherId: string,
     @Body() updateTeacherDto: UpdateTeacherDto,
@@ -156,6 +168,8 @@ export class TeacherAdminController {
   }
 
   @Delete(':teacherId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async deleteTeacher(@Param('teacherId') teacherId: string) {
     // Validate ObjectId format
     if (!isValidObjectId(teacherId)) {
@@ -178,7 +192,7 @@ export class TeacherAdminController {
           deleted: true,
         },
       };
-    } catch (error) {
+    } catch (error: any) {
       // If it's already a NestJS HTTP exception, rethrow it
       if (error.getStatus && typeof error.getStatus === 'function') {
         throw error;
