@@ -11,7 +11,7 @@ import { CoursesModule } from 'courses/courses.module';
     CoursesModule,
   ],
   controllers: [EnrollmentsController],
-  providers: [EnrollmentService], 
+  providers: [EnrollmentService],
   exports: [EnrollmentService],
 })
 export class EnrollmentModule {}

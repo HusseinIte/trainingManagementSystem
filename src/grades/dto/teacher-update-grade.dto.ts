@@ -8,5 +8,10 @@ export class TeacherUpdateGradeDto {
   @IsString()
   rejected_reason?: string;
   @IsString()
-  grade_value: string;
+  grade_value: number;
+  @IsString()
+  result: string;
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

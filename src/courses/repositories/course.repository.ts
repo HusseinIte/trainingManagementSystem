@@ -26,16 +26,22 @@ export class CoursesRepository {
   ) {}
 
   async getAllCourses() {
-  try {
-    return await this.courseModel.find().populate('category_id').populate('teacher_id', 'full_name email');
-  } catch (error) {
-    this.handleError(error);
+    try {
+      return await this.courseModel
+        .find()
+        .populate('category_id')
+        .populate('teacher_id', 'full_name email');
+    } catch (error) {
+      this.handleError(error);
+    }
   }
-}
 
   async findCourseById(id: string) {
     try {
-      return await this.courseModel.findById(id).populate('category_id').populate('teacher_id', 'full_name email');
+      return await this.courseModel
+        .findById(id)
+        .populate('category_id')
+        .populate('teacher_id', 'full_name email');
     } catch (error) {
       this.handleError(error);
     }
@@ -53,15 +59,27 @@ export class CoursesRepository {
       filter.title = { $regex: query.search, $options: 'i' };
     }
 
-    const courses = await this.courseModel.find(filter).populate('category_id').populate('teacher_id', 'full_name email');
+    const courses = await this.courseModel
+      .find(filter)
+      .populate('category_id')
+      .populate('teacher_id', 'full_name email');
     if (courses.length === 0) return courses;
 
     const courseIds = courses.map((c) => c._id);
 
     // One query: accepted enrollment count per course, for every course in this result set
     const counts = await this.enrollmentModel.aggregate([
-      { $match: { course_id: { $in: courseIds }, status: 'ACCEPTED' } }, // swap for your EnrollmentStatus.ACCEPTED if you have that enum
-      { $group: { _id: '$course_id', count: { $sum: 1 } } },
+      {
+        $match: {
+          $expr: {
+            $and: [
+              { $in: [{ $toObjectId: '$course_id' }, courseIds] },
+              { $eq: ['$status', 'ACCEPTED'] },
+            ],
+          },
+        },
+      },
+      { $group: { _id: { $toObjectId: '$course_id' }, count: { $sum: 1 } } },
     ]);
 
     const countMap = new Map(counts.map((c) => [c._id.toString(), c.count]));
@@ -122,15 +140,31 @@ export class CoursesRepository {
   }
 
   async findCoursesByTeacher(teacherId: string, status?: string) {
-  const filter: any = { teacher_id: teacherId };
-  if (status && status !== 'all') {
-    filter.status = status;
-    console.log('Filtering courses for teacher', teacherId, 'with status', status, 'Filter:', filter);
+    const filter: any = { teacher_id: teacherId };
+    if (status && status !== 'all') filter.status = status;
+
+    const courses = await this.courseModel.find(filter).populate('category_id');
+    if (courses.length === 0) return courses;
+
+    const courseIds = courses.map((c) => c._id);
+    const counts = await this.enrollmentModel.aggregate([
+      {
+        $match: {
+          $expr: {
+            $and: [
+              { $in: [{ $toObjectId: '$course_id' }, courseIds] },
+              { $eq: ['$status', 'ACCEPTED'] },
+            ],
+          },
+        },
+      },
+      { $group: { _id: { $toObjectId: '$course_id' }, count: { $sum: 1 } } },
+    ]);
+    const countMap = new Map(counts.map((c) => [c._id.toString(), c.count]));
+
+    return courses.map((c) => ({
+      ...c.toObject(),
+      enrolled_count: countMap.get(c._id.toString()) ?? 0,
+    }));
   }
-  try {
-    return await this.courseModel.find(filter);
-  } catch (error) {
-    this.handleError(error);
-  }
-}
 }

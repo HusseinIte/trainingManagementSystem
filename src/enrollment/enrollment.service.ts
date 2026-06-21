@@ -1,25 +1,22 @@
 import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
-import { CoursesService } from 'courses/courses.service';
-import { Enrollment, EnrollmentDocument } from './schemas/enrollment.schema';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CourseStatus } from 'courses/schemas/course.schema';
-import {
-  EnrollmentReviewStatus,
-  ReviewEnrollmentDto,
-} from './dto/review-enrollment.dto';
+import { Model } from 'mongoose';
+import { Enrollment, EnrollmentDocument } from './schemas/enrollment.schema';
+import { CoursesService } from '../courses/courses.service';
+import { CourseStatus } from '../courses/schemas/course.schema';
+import { EnrollmentReviewStatus, ReviewEnrollmentDto } from './dto/review-enrollment.dto';
+
 
 @Injectable()
 export class EnrollmentService {
   constructor(
-    @InjectModel(Enrollment.name)
-    private enrollmentModel: Model<EnrollmentDocument>,
+    @InjectModel(Enrollment.name) private enrollmentModel: Model<EnrollmentDocument>,
     private readonly coursesService: CoursesService,
   ) {}
 
@@ -39,11 +36,8 @@ export class EnrollmentService {
       course_id: courseId,
       status: { $in: ['PENDING_PAYMENT', 'ACCEPTED'] },
     });
-
     if (existing) {
-      throw new ConflictException(
-        'You already have an active enrollment for this course',
-      );
+      throw new ConflictException('You already have an active enrollment for this course');
     }
 
     return this.enrollmentModel.create({
@@ -70,14 +64,11 @@ export class EnrollmentService {
     if (!enrollment) throw new NotFoundException('Enrollment not found');
 
     if (enrollment.status !== 'PENDING_PAYMENT') {
-      throw new BadRequestException(
-        `Cannot review an enrollment with status ${enrollment.status}`,
-      );
+      throw new BadRequestException(`Cannot review an enrollment with status ${enrollment.status}`);
     }
+
     if (dto.status === EnrollmentReviewStatus.ACCEPTED) {
-      const course = await this.coursesService.findCourseById(
-        enrollment.course_id.toString(),
-      );
+      const course = await this.coursesService.findCourseById(enrollment.course_id.toString());
       const acceptedCount = await this.enrollmentModel.countDocuments({
         course_id: enrollment.course_id,
         status: 'ACCEPTED',
@@ -88,17 +79,13 @@ export class EnrollmentService {
 
       enrollment.status = 'ACCEPTED';
       enrollment.accepted_date = new Date();
+
       if (acceptedCount + 1 >= course!.capacity) {
-        await this.coursesService.updateCourseStatus(
-          course!._id.toString(),
-          CourseStatus.FULL,
-        );
+        await this.coursesService.updateCourseStatus(course!._id.toString(), CourseStatus.FULL);
       }
     } else if (dto.status === EnrollmentReviewStatus.REJECTED) {
       if (!dto.rejection_reason) {
-        throw new BadRequestException(
-          'A rejection reason is required when rejecting',
-        );
+        throw new BadRequestException('A rejection reason is required when rejecting');
       }
       enrollment.status = 'REJECTED';
       enrollment.rejected_reason = dto.rejection_reason;
@@ -106,35 +93,40 @@ export class EnrollmentService {
 
     return enrollment.save();
   }
+
   /** Student: their own enrollments, optionally filtered by status, with course populated */
   async findByStudent(studentId: string, status?: string) {
-  const filter: Record<string, any> = { student_id: studentId };
-  if (status && status !== 'all') filter.status = status;
-  return this.enrollmentModel
-    .find(filter)
-    .populate({
-      path: 'course_id',
-      populate: { path: 'category_id' },
-    })
-    .sort({ requested_at: -1 });
-}
+    const filter: Record<string, any> = { student_id: studentId };
+    if (status && status !== 'all') filter.status = status;
+    return this.enrollmentModel
+      .find(filter)
+      .populate('course_id')
+      .sort({ requested_at: -1 });
+  }
 
   /** Teacher: roster of accepted students in one of their own courses */
   async findByCourseForTeacher(teacherId: string, courseId: string) {
     const course = await this.coursesService.findCourseById(courseId);
     if (!course) throw new NotFoundException('Course not found');
-    if (course.teacher_id.toString() !== teacherId) {
+
+    // IMPORTANT: course.teacher_id is a Mongoose ObjectId, teacherId is a plain string
+    // from the JWT payload — both sides must go through String() / .toString()
+    // or this comparison silently never matches, which is exactly what produces
+    // the 403 you're seeing.
+    if (String(course.teacher_id) !== String(teacherId)) {
       throw new ForbiddenException('You do not teach this course');
     }
+
     return this.enrollmentModel
       .find({ course_id: courseId, status: 'ACCEPTED' })
       .populate('student_id', 'full_name email phone');
   }
 
-  /** Used internally by GradesService to verify an enrollment belongs to a given student */
+  /** Used internally to verify an enrollment belongs to a given student (e.g. for grades) */
   async findOne(enrollmentId: string) {
     const enrollment = await this.enrollmentModel.findById(enrollmentId);
     if (!enrollment) throw new NotFoundException('Enrollment not found');
     return enrollment;
   }
+  
 }

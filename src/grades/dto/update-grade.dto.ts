@@ -1,4 +1,5 @@
+// dto/teacher-update-grade.dto.ts
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateGradeDto } from './create-grade.dto';
+import { TeacherAddGradeDto } from './teacher-add-grade.dto';
 
-export class UpdateGradeDto extends PartialType(CreateGradeDto) {}
+export class TeacherUpdateGradeDto extends PartialType(TeacherAddGradeDto) {}

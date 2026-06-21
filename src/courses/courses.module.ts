@@ -4,7 +4,7 @@ import { CoursesController } from './courses.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CourseSchema } from './schemas/course.schema';
 import { CoursesRepository } from './repositories/course.repository';
-import { Enrollment, EnrollmentSchema } from 'enrollment/schemas/enrollment.schema';
+import { EnrollmentSchema } from 'enrollment/schemas/enrollment.schema';
 import { TeacherCoursesController } from './teacher-courses.controller';
 
 @Module({

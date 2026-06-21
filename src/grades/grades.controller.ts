@@ -8,15 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { GradesService } from './grades.service';
-import { CreateGradeDto } from './dto/create-grade.dto';
-import { UpdateGradeDto } from './dto/update-grade.dto';
+import { TeacherAddGradeDto } from './dto/create-grade.dto';
+import { TeacherUpdateGradeDto } from './dto/update-grade.dto';
 
 @Controller('grades')
 export class GradesController {
   constructor(private readonly gradesService: GradesService) {}
 
   @Post()
-  create(@Body() createGradeDto: CreateGradeDto) {
+  create(@Body() createGradeDto: TeacherAddGradeDto) {
     return this.gradesService.create(createGradeDto);
   }
 
@@ -31,7 +31,7 @@ export class GradesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGradeDto: UpdateGradeDto) {
+  update(@Param('id') id: string, @Body() updateGradeDto: TeacherUpdateGradeDto) {
     return this.gradesService.update(+id, updateGradeDto);
   }
 

@@ -1,12 +1,14 @@
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+
+export enum GradeResult { PASSED = 'PASSED', FAILED = 'FAILED' }
 
 export class TeacherAddGradeDto {
-  @IsIn(['pending', 'accepted', 'rejected'])
-  status: 'pending' | 'accepted' | 'rejected';
+  @IsNumber() @Min(0) @Max(100)
+  grade_value: number;
 
-  @IsOptional()
-  @IsString()
-  rejected_reason?: string;
-  @IsString()
-  grade_value: string;
+  @IsEnum(GradeResult)
+  result: GradeResult;
+
+  @IsOptional() @IsString()
+  notes?: string;
 }
