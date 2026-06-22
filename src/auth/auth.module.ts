@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 import { JwtStrategy } from './authentication/jwt.strategy';
+import { JWT_SECRET } from './auth.constants';
 
 import { RolesGuard } from './authorization/roles.guard';
 
@@ -17,7 +18,7 @@ import { RolesGuard } from './authorization/roles.guard';
     UsersModule,
 
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: JWT_SECRET,
 
       signOptions: {
         expiresIn: '1d',

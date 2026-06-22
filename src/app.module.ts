@@ -28,7 +28,6 @@ import { CategoriesController } from 'categories/categories.controller';
     GradesModule,
     EnrollmentModule,
     StatisticsModule,
-    AuthModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],

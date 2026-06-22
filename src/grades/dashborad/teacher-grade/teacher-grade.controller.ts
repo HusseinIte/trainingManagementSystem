@@ -8,9 +8,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'auth/authentication/jwt-auth.guard';
-import { Roles } from 'auth/authorization/roles.decorator';
-import { RolesGuard } from 'auth/authorization/roles.guard';
+import { JwtAuthGuard } from '../../../auth/authentication/jwt-auth.guard';
+import { Roles } from '../../../auth/authorization/roles.decorator';
+import { RolesGuard } from '../../../auth/authorization/roles.guard';
 import { TeacherAddGradeDto } from '../../dto/teacher-add-grade.dto';
 import { TeacherUpdateGradeDto } from '../../dto/teacher-update-grade.dto';
 import { TeacherGradeService } from './teacher-grade.service';

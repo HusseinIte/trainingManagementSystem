@@ -7,6 +7,8 @@ import { EnrollmentSchema } from '../enrollment/schemas/enrollment.schema';
 import { CourseSchema } from '../courses/schemas/course.schema';
 import { TeacherGradeController } from './dashborad/teacher-grade/teacher-grade.controller';
 import { TeacherGradeService } from './dashborad/teacher-grade/teacher-grade.service';
+import { StudentGradeController } from './dashborad/student-grade/student-grade.controller';
+import { GradesRepository } from './grades.repository';
 
 @Module({
   imports: [
@@ -16,7 +18,11 @@ import { TeacherGradeService } from './dashborad/teacher-grade/teacher-grade.ser
       { name: 'Course', schema: CourseSchema },
     ]),
   ],
-  controllers: [GradesController, TeacherGradeController],
-  providers: [GradesService, TeacherGradeService],
+  controllers: [
+    GradesController,
+    TeacherGradeController,
+    StudentGradeController,
+  ],
+  providers: [GradesService, GradesRepository, TeacherGradeService],
 })
 export class GradesModule {}
