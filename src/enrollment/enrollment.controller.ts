@@ -46,6 +46,7 @@ export class EnrollmentsController {
     return this.enrollmentsService.findByStudent(req.user.id, status);
   }
 
+  //Fixed
   @Get('teachers/me/courses/:courseId/students')
   @Roles('teacher')
   studentsInCourse(@Req() req, @Param('courseId') courseId: string) {

@@ -8,7 +8,10 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Grade, GradeDocument } from '../../schemas/grade.schema';
-import { Enrollment, EnrollmentDocument } from '../../../enrollment/schemas/enrollment.schema';
+import {
+  Enrollment,
+  EnrollmentDocument,
+} from '../../../enrollment/schemas/enrollment.schema';
 import { Course, CourseDocument } from '../../../courses/schemas/course.schema';
 import { TeacherAddGradeDto } from '../../dto/teacher-add-grade.dto';
 import { TeacherUpdateGradeDto } from '../../dto/teacher-update-grade.dto';
@@ -17,7 +20,8 @@ import { TeacherUpdateGradeDto } from '../../dto/teacher-update-grade.dto';
 export class TeacherGradeService {
   constructor(
     @InjectModel('Grades') private readonly gradeModel: Model<GradeDocument>,
-    @InjectModel('Enrollment') private readonly enrollmentModel: Model<EnrollmentDocument>,
+    @InjectModel('Enrollment')
+    private readonly enrollmentModel: Model<EnrollmentDocument>,
     @InjectModel('Course') private readonly courseModel: Model<CourseDocument>,
   ) {}
 
@@ -30,21 +34,32 @@ export class TeacherGradeService {
     return course;
   }
 
-  async addGrade(teacherId: string, courseId: string, enrollmentId: string, dto: TeacherAddGradeDto) {
+  async addGrade(
+    teacherId: string,
+    courseId: string,
+    enrollmentId: string,
+    dto: TeacherAddGradeDto,
+  ) {
     await this.assertOwnsCourse(teacherId, courseId);
 
     const enrollment = await this.enrollmentModel.findById(enrollmentId);
     if (!enrollment) throw new NotFoundException('Enrollment not found');
     if (String(enrollment.course_id) !== String(courseId)) {
-      throw new BadRequestException('Enrollment does not belong to this course');
+      throw new BadRequestException(
+        'Enrollment does not belong to this course',
+      );
     }
     if (enrollment.status !== 'ACCEPTED') {
       throw new BadRequestException('Only accepted enrollments can be graded');
     }
 
-    const existing = await this.gradeModel.findOne({ enrollment_id: enrollmentId });
+    const existing = await this.gradeModel.findOne({
+      enrollment_id: enrollmentId,
+    });
     if (existing) {
-      throw new ConflictException('This enrollment already has a grade — use update instead');
+      throw new ConflictException(
+        'This enrollment already has a grade — use update instead',
+      );
     }
 
     return this.gradeModel.create({
@@ -56,25 +71,30 @@ export class TeacherGradeService {
   }
 
   async getGradesForCourse(teacherId: string, courseId: string) {
-  await this.assertOwnsCourse(teacherId, courseId);
+    await this.assertOwnsCourse(teacherId, courseId);
+    const enrollments = await this.enrollmentModel
+      .find({
+        $or: [
+          { course_id: courseId },
+          { course_id: new Types.ObjectId(courseId) },
+        ],
+      })
+      .select('_id');
+    // Fixed
+    const enrollmentIds = enrollments.map((e) => e._id.toString());
+    return this.gradeModel
+      .find({ enrollment_id: { $in: enrollmentIds } })
+      .populate({
+        path: 'enrollment_id',
+        populate: { path: 'student_id', select: 'full_name email' },
+      });
+  }
 
-  const enrollments = await this.enrollmentModel.find({
-    $or: [
-      { course_id: courseId },
-      { course_id: new Types.ObjectId(courseId) },
-    ],
-  }).select('_id');
-  const enrollmentIds = enrollments.map((e) => e._id);
-
-  return this.gradeModel
-    .find({ enrollment_id: { $in: enrollmentIds } })
-    .populate({
-      path: 'enrollment_id',
-      populate: { path: 'student_id', select: 'full_name email' },
-    });
-}
-
-  async updateGrade(teacherId: string, gradeId: string, dto: TeacherUpdateGradeDto) {
+  async updateGrade(
+    teacherId: string,
+    gradeId: string,
+    dto: TeacherUpdateGradeDto,
+  ) {
     const grade = await this.gradeModel.findById(gradeId);
     if (!grade) throw new NotFoundException('Grade not found');
 

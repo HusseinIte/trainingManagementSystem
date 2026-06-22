@@ -10,13 +10,16 @@ import { Model } from 'mongoose';
 import { Enrollment, EnrollmentDocument } from './schemas/enrollment.schema';
 import { CoursesService } from '../courses/courses.service';
 import { CourseStatus } from '../courses/schemas/course.schema';
-import { EnrollmentReviewStatus, ReviewEnrollmentDto } from './dto/review-enrollment.dto';
-
+import {
+  EnrollmentReviewStatus,
+  ReviewEnrollmentDto,
+} from './dto/review-enrollment.dto';
 
 @Injectable()
 export class EnrollmentService {
   constructor(
-    @InjectModel(Enrollment.name) private enrollmentModel: Model<EnrollmentDocument>,
+    @InjectModel(Enrollment.name)
+    private enrollmentModel: Model<EnrollmentDocument>,
     private readonly coursesService: CoursesService,
   ) {}
 
@@ -37,7 +40,9 @@ export class EnrollmentService {
       status: { $in: ['PENDING_PAYMENT', 'ACCEPTED'] },
     });
     if (existing) {
-      throw new ConflictException('You already have an active enrollment for this course');
+      throw new ConflictException(
+        'You already have an active enrollment for this course',
+      );
     }
 
     return this.enrollmentModel.create({
@@ -64,11 +69,15 @@ export class EnrollmentService {
     if (!enrollment) throw new NotFoundException('Enrollment not found');
 
     if (enrollment.status !== 'PENDING_PAYMENT') {
-      throw new BadRequestException(`Cannot review an enrollment with status ${enrollment.status}`);
+      throw new BadRequestException(
+        `Cannot review an enrollment with status ${enrollment.status}`,
+      );
     }
 
     if (dto.status === EnrollmentReviewStatus.ACCEPTED) {
-      const course = await this.coursesService.findCourseById(enrollment.course_id.toString());
+      const course = await this.coursesService.findCourseById(
+        enrollment.course_id.toString(),
+      );
       const acceptedCount = await this.enrollmentModel.countDocuments({
         course_id: enrollment.course_id,
         status: 'ACCEPTED',
@@ -81,11 +90,16 @@ export class EnrollmentService {
       enrollment.accepted_date = new Date();
 
       if (acceptedCount + 1 >= course!.capacity) {
-        await this.coursesService.updateCourseStatus(course!._id.toString(), CourseStatus.FULL);
+        await this.coursesService.updateCourseStatus(
+          course!._id.toString(),
+          CourseStatus.FULL,
+        );
       }
     } else if (dto.status === EnrollmentReviewStatus.REJECTED) {
       if (!dto.rejection_reason) {
-        throw new BadRequestException('A rejection reason is required when rejecting');
+        throw new BadRequestException(
+          'A rejection reason is required when rejecting',
+        );
       }
       enrollment.status = 'REJECTED';
       enrollment.rejected_reason = dto.rejection_reason;
@@ -113,7 +127,10 @@ export class EnrollmentService {
     // from the JWT payload — both sides must go through String() / .toString()
     // or this comparison silently never matches, which is exactly what produces
     // the 403 you're seeing.
-    if (String(course.teacher_id) !== String(teacherId)) {
+    const courseTeacherId = String(
+      course.teacher_id._id ? course.teacher_id._id : course.teacher_id,
+    );
+    if (String(courseTeacherId) !== String(teacherId)) {
       throw new ForbiddenException('You do not teach this course');
     }
 
@@ -128,5 +145,4 @@ export class EnrollmentService {
     if (!enrollment) throw new NotFoundException('Enrollment not found');
     return enrollment;
   }
-  
 }
